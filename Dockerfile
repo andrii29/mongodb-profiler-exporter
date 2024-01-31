@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.8-slim
 
 WORKDIR /app
 ADD requirements.txt .
@@ -7,4 +7,4 @@ COPY . /app
 
 EXPOSE 9179
 
-CMD ["python", "mongodb-profiler-exporter.py"]
+ENTRYPOINT ["python", "mongodb-profiler-exporter.py"]

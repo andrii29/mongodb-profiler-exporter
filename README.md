@@ -17,14 +17,15 @@ docker run -p 9179:9179 host -it --rm --name mongodb-profiler-exporter mongodb-p
 
 ### Usage
 ```
-usage: mongodb-profiler-exporter.py [-h] [--uri URI] [--wait-interval WAIT_INTERVAL] [--max-string-size MAX_STRING_SIZE] [--listen-ip LISTEN_IP] [--listen-port LISTEN_PORT]
+usage: mongodb-profiler-exporter.py [-h] [--mongodb-uri MONGODB_URI] [--wait-interval WAIT_INTERVAL] [--max-string-size MAX_STRING_SIZE] [--listen-ip LISTEN_IP] [--listen-port LISTEN_PORT]
                                     [--metrics-endpoint METRICS_ENDPOINT]
 
 MongoDB Prometheus Exporter
 
 options:
   -h, --help            show this help message and exit
-  --uri URI             MongoDB URI (default: mongodb://127.0.0.1:27017/) (default: mongodb://127.0.0.1:27017/)
+  --mongodb-uri MONGODB_URI
+                        MongoDB URI (default: mongodb://127.0.0.1:27017/)
   --wait-interval WAIT_INTERVAL
                         Wait interval between data parsing in seconds (default: 10)
   --max-string-size MAX_STRING_SIZE
@@ -32,9 +33,10 @@ options:
   --listen-ip LISTEN_IP
                         IP address to listen on (default: 0.0.0.0)
   --listen-port LISTEN_PORT
-                        Port to listen (default: 9179) (default: 9179)
+                        Port to listen (default: 9179)
   --metrics-endpoint METRICS_ENDPOINT
                         Metrics endpoint path (default: /metrics)
+
 ```
 
 #### Environment Variables
@@ -50,22 +52,31 @@ You can use environment variables to configure the exporter. If an environment v
 
 ### Authentication
 To set up authentication, follow these steps:
-```bash
+```
 mongosh
 
 use admin
 db.createUser({
   user: "mongodb-profiler-exporter",
   pwd: passwordPrompt(),
-  roles: [
-    { role: "read", db: "admin" },
-    { role: "read", db: "local" },
-    { role: "read", db: "config" },
-    { role: "read", db: "your_database" }
-  ]
+  roles: [ { role: "clusterMonitor", db: "admin" } ]
 })
 
-python mongodb-profiler-exporter.py --uri "mongodb://mongodb-profiler-exporter:<password>@127.0.0.1:27017/"
+python mongodb-profiler-exporter.py --mongodb-uri "mongodb://mongodb-profiler-exporter:<password>@127.0.0.1:27017/admin?authSource=admin&readPreference=primaryPreferred"
+```
 
+### Enable MongoDB Profiler
+There are two ways to enable profiler in mongodb:
+#### Per Dababase
+```
+use db_name
+db.getProfilingStatus()
+db.setProfilingLevel(1, { slowms: 100 })
+```
 
+#### Globally in mongod.conf
+```yaml
+operationProfiling:
+  mode: slowOp
+  slowOpThresholdMs: 100
 ```

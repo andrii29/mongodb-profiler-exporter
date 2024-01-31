@@ -14,7 +14,7 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=lo
 default_labels = ['db', "query_hash"]
 # Prometheus metrics
 slow_queries_count_total = Counter('slow_queries_count_total', 'Total number of slow queries', default_labels)
-slow_queries_duration_total = Counter('slow_queries_duration_total', 'Total execution time of slow queries', default_labels)
+slow_queries_duration_total = Counter('slow_queries_duration_total', 'Total execution time of slow queries in milliseconds', default_labels)
 slow_queries_keys_examined_total = Counter('slow_queries_keys_examined_total', 'Total number of examined keys', default_labels)
 slow_queries_docs_examined_total = Counter('slow_queries_docs_examined_total', 'Total number of examined documents', default_labels)
 slow_queries_info = Gauge("slow_queries_info", "Information about slow query",
@@ -86,7 +86,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='MongoDB Prometheus Exporter',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     # Use environment variables or default values for command-line arguments
-    parser.add_argument('--uri', type=str, default=os.getenv('MONGODB_URI', 'mongodb://127.0.0.1:27017/'),
+    parser.add_argument('--mongodb-uri', type=str, default=os.getenv('MONGODB_URI', 'mongodb://127.0.0.1:27017/'),
                         help='MongoDB URI')
     parser.add_argument('--wait-interval', type=int, default=os.getenv('WAIT_INTERVAL', 10),
                         help='Wait interval between data parsing in seconds')
@@ -102,7 +102,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    keys_to_remove = ["cursor", "lsid", "projection", "$readPreference", "$db"]
+    keys_to_remove = ["cursor", "lsid", "projection", "sort", "signature", "$readPreference", "$db", "$clusterTime"]
 
     # Log important information
     logging.info(f"Starting MongoDB Prometheus Exporter with the following parameters:")
@@ -118,7 +118,7 @@ def main():
     while True:
         try:
             # Connect to MongoDB
-            mongo_client = connect_to_mongo(args.uri)
+            mongo_client = connect_to_mongo(args.mongodb_uri)
 
             # Calculate the time window
             end_time = datetime.utcnow()
