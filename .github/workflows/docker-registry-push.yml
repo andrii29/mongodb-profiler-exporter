@@ -35,5 +35,5 @@ jobs:
           push: true
           tags: |
             ${{ steps.meta.outputs.tags }}
-            ${{ REPO }}:latest
+            ${{ env.REPO }}:latest
           labels: ${{ steps.meta.outputs.labels }}
