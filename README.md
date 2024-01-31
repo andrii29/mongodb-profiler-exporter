@@ -91,4 +91,4 @@ db.setProfilingLevel(1, { slowms: 100 })  // Enable profiling again
 ```
 
 ### Grafana Dashboard
-You can find example dashboard at [20387]([URL](https://grafana.com/grafana/dashboards/20387))
+You can find example dashboard at id [20387](https://grafana.com/grafana/dashboards/20387)
