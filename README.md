@@ -8,11 +8,9 @@ python mongodb-profiler-exporter.py
 ```
 
 ### Docker
-```
-docker build -t mongodb-profiler-exporter .
-docker run -p 9179:9179 host -it --rm --net host --name mongodb-profiler-exporter mongodb-profiler-exporter # host network
-docker run -p 9179:9179 host -it --rm --name mongodb-profiler-exporter mongodb-profiler-exporter
-
+```js
+docker run -p 9179:9179 -it --rm --name mongodb-profiler-exporter andriik/mongodb-profiler-exporter
+docker run -it --rm --net host --name mongodb-profiler-exporter andriik/mongodb-profiler-exporter // host network
 ```
 
 ### Usage
@@ -80,3 +78,17 @@ operationProfiling:
   mode: slowOp
   slowOpThresholdMs: 100
 ```
+
+### Increase system.profile size
+The default size of the system.profile collection is set to 1MB, which can be insufficient for certain scenarios. To address this limitation, you can adjust the size of the collection by recreating it. Note that this process should not be replicated to replicas.
+
+Below are example commands that can be used to increase the size of the system.profile collection to 50MB:
+```js
+db.setProfilingLevel(0) // Disable profiling temporarily
+db.system.profile.drop() // Drop the existing system.profile collection
+db.createCollection( "system.profile", { capped: true, size: 1024 * 1024 * 50 } )
+db.setProfilingLevel(1, { slowms: 100 })  // Enable profiling again
+```
+
+### Grafana Dashboard
+You can find example dashboard at [20387]([URL](https://grafana.com/grafana/dashboards/20387))

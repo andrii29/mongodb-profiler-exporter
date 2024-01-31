@@ -102,7 +102,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    keys_to_remove = ["cursor", "lsid", "projection", "sort", "signature", "$readPreference", "$db", "$clusterTime"]
+    keys_to_remove = ["cursor", "lsid", "projection", "sort", "limit", "signature", "$readPreference", "$db", "$clusterTime"]
 
     # Log important information
     logging.info(f"Starting MongoDB Prometheus Exporter with the following parameters:")
