@@ -1,4 +1,4 @@
-## MongoDB Profiler Prometheus Exporter
+## MongoDB Profiler Exporter
 A Python script that exports MongoDB slow query metrics from system.profile collection for Prometheus monitoring.
 
 ### Installation
