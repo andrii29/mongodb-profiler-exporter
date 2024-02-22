@@ -128,7 +128,7 @@ def main():
             mongo_client = connect_to_mongo(args.mongodb_uri)
 
             # Calculate the time window
-            end_time = datetime.now(datetime.UTC)
+            end_time = datetime.now(ZoneInfo("UTC"))
             start_time = end_time - timedelta(seconds=args.wait_interval)
 
             # Get the list of databases
