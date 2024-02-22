@@ -6,6 +6,7 @@ from prometheus_client import start_http_server, Counter, Gauge
 import pymongo
 import time
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 import argparse
 
 # Configure logging
@@ -17,6 +18,7 @@ slow_queries_count_total = Counter('slow_queries_count_total', 'Total number of 
 slow_queries_duration_total = Counter('slow_queries_duration_total', 'Total execution time of slow queries in milliseconds', default_labels)
 slow_queries_keys_examined_total = Counter('slow_queries_keys_examined_total', 'Total number of examined keys', default_labels)
 slow_queries_docs_examined_total = Counter('slow_queries_docs_examined_total', 'Total number of examined documents', default_labels)
+slow_queries_nreturned_total = Counter('slow_queries_nreturned_total', 'Total number of returned documents', default_labels)
 slow_queries_info = Gauge("slow_queries_info", "Information about slow query",
                          default_labels + ["query_shape", "query_framework", "op", "plan_summary"])
 
@@ -126,7 +128,7 @@ def main():
             mongo_client = connect_to_mongo(args.mongodb_uri)
 
             # Calculate the time window
-            end_time = datetime.utcnow()
+            end_time = datetime.now(ZoneInfo("UTC"))
             start_time = end_time - timedelta(seconds=args.wait_interval)
 
             # Get the list of databases
@@ -156,6 +158,9 @@ def main():
 
                                 docs_examined = get_slow_queries_value_sum(db, ns, query_hash, start_time, end_time, "docsExamined")
                                 slow_queries_docs_examined_total.labels(db=db_name, ns=ns, query_hash=query_hash).inc(docs_examined)
+
+                                nreturned = get_slow_queries_value_sum(db, ns, query_hash, start_time, end_time, "nreturned")
+                                slow_queries_nreturned_total.labels(db=db_name, ns=ns, query_hash=query_hash).inc(nreturned)
 
                                 query_info = get_query_info_values(db, ns, query_hash, start_time, end_time, keys_to_remove)
                                 if query_info[0] != '':
