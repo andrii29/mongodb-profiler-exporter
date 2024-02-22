@@ -6,6 +6,7 @@ from prometheus_client import start_http_server, Counter, Gauge
 import pymongo
 import time
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 import argparse
 
 # Configure logging
@@ -127,7 +128,7 @@ def main():
             mongo_client = connect_to_mongo(args.mongodb_uri)
 
             # Calculate the time window
-            end_time = datetime.utcnow()
+            end_time = datetime.now(datetime.UTC)
             start_time = end_time - timedelta(seconds=args.wait_interval)
 
             # Get the list of databases
