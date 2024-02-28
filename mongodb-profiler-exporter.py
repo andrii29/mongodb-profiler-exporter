@@ -80,10 +80,10 @@ def get_query_info_values(db, ns, query_hash, start_time, end_time, keys_to_remo
     query = {"queryHash": query_hash,"ns": ns, "ts": {"$gte": start_time, "$lt": end_time}, "command.getMore": {"$exists": False}}
     result = list(profile_collection.find(query).limit(1))
     if result:
-        query = result[0]["command"]
-        query_framework = result[0]["queryFramework"]
-        op = result[0]["op"]
-        plan_summary = result[0]["planSummary"]
+        query = result[0].get("command", "")
+        query_framework = result[0].get("queryFramework", "")
+        op = result[0].get("op", "")
+        plan_summary = result[0].get("planSummary", "")
         query_shape = remove_keys_and_replace(query, keys_to_remove)
     else:
         query_shape, query_framework, op, plan_summary = '', '', '', ''
