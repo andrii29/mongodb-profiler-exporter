@@ -90,5 +90,10 @@ db.createCollection( "system.profile", { capped: true, size: 1024 * 1024 * 50 } 
 db.setProfilingLevel(1, { slowms: 100 })  // Enable profiling again
 ```
 
+### Supported MongoDB versions
+```
+4.4, 5.0, 6.0, 7.0
+```
+
 ### Grafana Dashboard
 You can find example dashboard at id [20387](https://grafana.com/grafana/dashboards/20387)

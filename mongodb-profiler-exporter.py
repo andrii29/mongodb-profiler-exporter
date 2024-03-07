@@ -15,12 +15,19 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=lo
 default_labels = ["db", "ns", "query_hash"]
 # Prometheus metrics
 slow_queries_count_total = Counter('slow_queries_count_total', 'Total number of slow queries', default_labels)
+slow_queries_info = Gauge("slow_queries_info", "Information about slow query",
+                         default_labels + ["query_shape", "query_framework", "op", "plan_summary"])
 slow_queries_duration_total = Counter('slow_queries_duration_total', 'Total execution time of slow queries in milliseconds', default_labels)
 slow_queries_keys_examined_total = Counter('slow_queries_keys_examined_total', 'Total number of examined keys', default_labels)
 slow_queries_docs_examined_total = Counter('slow_queries_docs_examined_total', 'Total number of examined documents', default_labels)
 slow_queries_nreturned_total = Counter('slow_queries_nreturned_total', 'Total number of returned documents', default_labels)
-slow_queries_info = Gauge("slow_queries_info", "Information about slow query",
-                         default_labels + ["query_shape", "query_framework", "op", "plan_summary"])
+
+fields_to_metrics_map = {
+    "millis": slow_queries_duration_total,
+    "keysExamined": slow_queries_keys_examined_total,
+    "docsExamined": slow_queries_docs_examined_total,
+    "nreturned": slow_queries_nreturned_total
+}
 
 def connect_to_mongo(uri):
     client = pymongo.MongoClient(uri)
@@ -40,24 +47,20 @@ def get_ns_values(db, start_time, end_time):
 
 def get_slow_queries_count(db, ns, query_hash, start_time, end_time):
     profile_collection = db.system.profile
-
     # Find values within the specified time window
     query = {"queryHash": query_hash, "ns": ns, "ts": {"$gte": start_time, "$lt": end_time}}
     count = profile_collection.count_documents(query)
     return count
 
-def get_slow_queries_value_sum(db, ns, query_hash, start_time, end_time, field):
+def get_slow_queries_value_sum(db, ns, query_hash, start_time, end_time, fields):
     profile_collection = db.system.profile
-
     # Find values within the specified time window
     match_stage = {"$match": {"queryHash": query_hash, "ns": ns, "ts": {"$gte": start_time, "$lt": end_time}}}
-    group_stage = {"$group": {"_id": None, "totalMillis": {"$sum": f"${field}"}}}
+    fields_formatted = {f"{field}": {"$sum": f"${field}"} for field in fields}
+    group_stage = {"$group": {"_id": None, **fields_formatted}}
     query = [match_stage, group_stage]
-
-    result = list(profile_collection.aggregate(query))
-    duration = result[0]["totalMillis"] if result else 0
-
-    return duration
+    result = list(profile_collection.aggregate(query))[0]
+    return {field: result.get(field, 0) for field in fields}
 
 def remove_keys_and_replace(query, keys_to_remove, replace_value="?"):
     # Recursively remove keys and replace values in the query.
@@ -122,6 +125,9 @@ def main():
     # Start Prometheus HTTP server
     start_http_server(args.listen_port, addr=args.listen_ip)
 
+    slow_queries_info_last_cleared = datetime.now(ZoneInfo("UTC"))
+    slow_queries_info_last_clear_interval=300 # seconds
+
     while True:
         try:
             # Connect to MongoDB
@@ -150,19 +156,17 @@ def main():
                                 count = get_slow_queries_count(db, ns, query_hash, start_time, end_time)
                                 slow_queries_count_total.labels(db=db_name, ns=ns, query_hash=query_hash).inc(count)
 
-                                duration = get_slow_queries_value_sum(db, ns, query_hash, start_time, end_time, "millis")
-                                slow_queries_duration_total.labels(db=db_name, ns=ns, query_hash=query_hash).inc(duration)
+                                slow_queries_values = get_slow_queries_value_sum(db, ns, query_hash, start_time, end_time, fields_to_metrics_map.keys())
 
-                                keys_examined = get_slow_queries_value_sum(db, ns, query_hash, start_time, end_time, "keysExamined")
-                                slow_queries_keys_examined_total.labels(db=db_name, ns=ns, query_hash=query_hash).inc(keys_examined)
-
-                                docs_examined = get_slow_queries_value_sum(db, ns, query_hash, start_time, end_time, "docsExamined")
-                                slow_queries_docs_examined_total.labels(db=db_name, ns=ns, query_hash=query_hash).inc(docs_examined)
-
-                                nreturned = get_slow_queries_value_sum(db, ns, query_hash, start_time, end_time, "nreturned")
-                                slow_queries_nreturned_total.labels(db=db_name, ns=ns, query_hash=query_hash).inc(nreturned)
+                                for field, metric in fields_to_metrics_map.items():
+                                    metric.labels(db=db_name, ns=ns, query_hash=query_hash).inc(slow_queries_values.get(field, 0))
 
                                 query_info = get_query_info_values(db, ns, query_hash, start_time, end_time, keys_to_remove)
+
+                                # Clear slow_queries_info metric to handle queries change, such as plan_summary update
+                                if datetime.now(ZoneInfo("UTC")) - slow_queries_info_last_cleared >= timedelta(seconds=slow_queries_info_last_clear_interval):
+                                    slow_queries_info._metrics.clear()
+                                    slow_queries_info_last_cleared = datetime.now(ZoneInfo("UTC"))
                                 if query_info[0] != '':
                                     slow_queries_info.labels(db=db_name, ns=ns, query_hash=query_hash,
                                     query_shape=str(query_info[0])[:args.max_string_size],
