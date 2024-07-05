@@ -80,7 +80,7 @@ def get_query_info_values(db, ns, query_hash, start_time, end_time, keys_to_remo
     # Get query information values for Prometheus metric.
     profile_collection = db.system.profile
 
-    query = {"queryHash": query_hash,"ns": ns, "ts": {"$gte": start_time, "$lt": end_time}, "command.getMore": {"$exists": False}}
+    query = {"queryHash": query_hash,"ns": ns, "ts": {"$gte": start_time, "$lt": end_time}, "command.getMore": {"$exists": False}, "command.explain": {"$exists": False}}
     result = list(profile_collection.find(query).limit(1))
     if result:
         query = result[0].get("command", "")
