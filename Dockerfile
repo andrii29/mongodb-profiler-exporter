@@ -4,7 +4,7 @@ FROM python:${TAG}
 ARG USER=app
 ARG UID=1000
 
-RUN adduser -D -s /bin/bash -u ${UID} ${USER}
+RUN adduser -D -s /bin/sh -u ${UID} ${USER}
 WORKDIR /app
 ADD requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
