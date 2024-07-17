@@ -4,7 +4,6 @@ ARG USER=app
 ARG UID=1000
 
 RUN useradd -ms /bin/bash ${USER} --uid ${UID}
-RUN mkdir /app
 WORKDIR /app
 ADD requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
