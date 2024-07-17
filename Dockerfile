@@ -1,9 +1,10 @@
-FROM python:3.12-slim
+ARG TAG=3.12-alpine3.20
+FROM python:${TAG}
 
 ARG USER=app
 ARG UID=1000
 
-RUN useradd -ms /bin/bash ${USER} --uid ${UID}
+RUN adduser -D -s /bin/bash -u ${UID} ${USER}
 WORKDIR /app
 ADD requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
