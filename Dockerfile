@@ -13,4 +13,4 @@ RUN chown -R ${USER}:${USER} /app
 USER ${USER}
 EXPOSE 9179
 
-ENTRYPOINT ["python", "mongodb-profiler-exporter.py"]
+ENTRYPOINT ["python", "-u", "mongodb-profiler-exporter.py"]

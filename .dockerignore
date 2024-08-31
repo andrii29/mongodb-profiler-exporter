@@ -2,6 +2,7 @@ Dockerfile
 LICENSE
 Makefile
 README.md
+images/
 .git
 .github
 .gitignore
