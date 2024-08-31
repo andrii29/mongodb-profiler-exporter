@@ -1,4 +1,5 @@
 ## MongoDB Profiler Exporter
+![Grafana Dashboard 20383](images/image1.png)
 A Python script that exports MongoDB slow query metrics from system.profile collection for Prometheus monitoring. [Read more](https://medium.com/@andriikrymus/mongodb-profiler-exporter-3abb84b877f1)
 
 ### Installation
