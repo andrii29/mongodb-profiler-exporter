@@ -118,6 +118,7 @@ def main():
     logging.info(f"Maximum String Size: {args.max_string_size}")
     logging.info(f"Listen IP: {args.listen_ip}")
     logging.info(f"Listen Port: {args.listen_port}")
+    logging.info(f"Metrics Endpoint: /metrics")
 
     # Start Prometheus HTTP server
     start_http_server(args.listen_port, addr=args.listen_ip)
