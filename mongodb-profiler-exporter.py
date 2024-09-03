@@ -106,8 +106,6 @@ def parse_args():
                         help='IP address to listen on')
     parser.add_argument('--listen-port', type=int, default=os.getenv('LISTEN_PORT', 9179),
                         help='Port to listen')
-    parser.add_argument('--metrics-endpoint', type=str, default=os.getenv('METRICS_ENDPOINT', '/metrics'),
-                        help='Metrics endpoint path')
     return parser.parse_args()
 
 def main():
@@ -120,7 +118,6 @@ def main():
     logging.info(f"Maximum String Size: {args.max_string_size}")
     logging.info(f"Listen IP: {args.listen_ip}")
     logging.info(f"Listen Port: {args.listen_port}")
-    logging.info(f"Metrics Endpoint: {args.metrics_endpoint}")
 
     # Start Prometheus HTTP server
     start_http_server(args.listen_port, addr=args.listen_ip)
