@@ -106,10 +106,14 @@ def parse_args():
                         help='IP address to listen on')
     parser.add_argument('--listen-port', type=int, default=os.getenv('LISTEN_PORT', 9179),
                         help='Port to listen')
+    parser.add_argument('--verbose', action='store_true', default=os.getenv('VERBOSE', False),
+                    help='Enable Verbose Mode)')
+
     return parser.parse_args()
 
 def main():
     args = parse_args()
+    verbose = args.verbose
     keys_to_remove = ["cursor", "lsid", "projection", "limit", "signature", "$readPreference", "$db", "$clusterTime"]
 
     # Log important information
@@ -127,9 +131,13 @@ def main():
     slow_queries_info_last_clear_interval=300 # seconds
 
     while True:
+        loop_start = time.time()
         try:
             # Connect to MongoDB
             mongo_client = connect_to_mongo(args.mongodb_uri)
+            if verbose:
+                mongo_client.admin.command('ping')
+                print("MongoDB Connection Status: Connected")
 
             # Calculate the time window
             end_time = datetime.now(ZoneInfo("UTC"))
@@ -141,15 +149,19 @@ def main():
             # Remove some dbs
             excluded_dbs = ["local", "admin", "config", "test"]
             valid_dbs = [db for db in databases if db not in excluded_dbs]
+            if verbose: print(f"Discovered Databases: {valid_dbs}")
+            if verbose: print(f"Start Queries Discovery in system.profile")
 
             # Iterate through valid databases and update metrics
             for db_name in valid_dbs:
                 db = mongo_client[db_name]
                 ns_values = get_ns_values(db, start_time, end_time)
                 if ns_values:
+                    if verbose: print(f"Discovered NS in {db_name} Database: {ns_values}")
                     for ns in ns_values:
                         query_hash_values = get_query_hash_values(db, ns, start_time, end_time)
                         if query_hash_values:
+                            if verbose: print(f"Discovered queryHash in {ns}: {query_hash_values}")
                             for query_hash in query_hash_values:
                                 count = get_slow_queries_count(db, ns, query_hash, start_time, end_time)
                                 slow_queries_count_total.labels(db=db_name, ns=ns, query_hash=query_hash).inc(count)
@@ -170,6 +182,10 @@ def main():
                                     query_shape=str(query_info[0])[:args.max_string_size],
                                     query_framework=query_info[1], op=query_info[2],
                                     plan_summary=str(query_info[3])[:args.max_string_size]).set(1)
+                        else:
+                             if verbose: print(f"Discovered no query_hash_values in {ns}")
+                else:
+                    if verbose: print(f"Discovered no NS in {db_name} Database")
 
             # Close MongoDB connection
             mongo_client.close()
@@ -177,7 +193,10 @@ def main():
         except Exception as e:
             logging.error(f"Error: {e}")
 
-        time.sleep(args.wait_interval)
+        # Calculate the time taken to execute the command
+        elapsed = time.time() - loop_start
+        if verbose: print(f'Elapsed loop execution time: {elapsed:.2f} seconds\n')
+        time.sleep(max(0, args.wait_interval - elapsed - 0.0005)) # try to keep loop at interval by extracting actual execution time
 
 if __name__ == '__main__':
     main()
