@@ -16,7 +16,7 @@ docker run -it --rm --net host --name mongodb-profiler-exporter andriik/mongodb-
 
 ### Usage
 ```
-usage: mongodb-profiler-exporter.py [-h] [--mongodb-uri MONGODB_URI] [--wait-interval WAIT_INTERVAL] [--max-string-size MAX_STRING_SIZE] [--listen-ip LISTEN_IP] [--listen-port LISTEN_PORT]
+usage: mongodb-profiler-exporter.py [-h] [--mongodb-uri MONGODB_URI] [--wait-interval WAIT_INTERVAL] [--max-string-size MAX_STRING_SIZE] [--listen-ip LISTEN_IP] [--listen-port LISTEN_PORT] [--verbose]
 
 MongoDB Prometheus Exporter
 
@@ -32,6 +32,7 @@ options:
                         IP address to listen on (default: 0.0.0.0)
   --listen-port LISTEN_PORT
                         Port to listen (default: 9179)
+  --verbose             Enable Verbose Mode (default: False)
 
 ```
 

@@ -107,7 +107,7 @@ def parse_args():
     parser.add_argument('--listen-port', type=int, default=os.getenv('LISTEN_PORT', 9179),
                         help='Port to listen')
     parser.add_argument('--verbose', action='store_true', default=os.getenv('VERBOSE', False),
-                    help='Enable Verbose Mode)')
+                    help='Enable Verbose Mode')
 
     return parser.parse_args()
 
