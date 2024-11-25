@@ -185,7 +185,8 @@ def main():
                         else:
                              if verbose: print(f"Discovered no query_hash_values in {ns}")
                 else:
-                    if verbose: print(f"Discovered no NS in {db_name} Database")
+                    if verbose: print(f"No namespaces (NS) found in the 'system.profile' collection of the '{db_name}' database.")
+
 
             # Close MongoDB connection
             mongo_client.close()
