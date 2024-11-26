@@ -11,6 +11,7 @@ env:
 jobs:
   update-chart-appversion:
     runs-on: ubuntu-latest
+    if: github.event.release.tag_name =~ '^[0-9]+\\.[0-9]+\\.[0-9]+$'
 
     steps:
       - name: Checkout repository
