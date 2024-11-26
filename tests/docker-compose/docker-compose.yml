@@ -31,6 +31,7 @@ services:
       - 27017:27017
     volumes:
       - ./mongodb/scripts:/scripts
+    restart: always
 
   mongodb-profiler-exporter:
     image: andriik/mongodb-profiler-exporter
