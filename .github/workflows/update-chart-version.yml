@@ -16,6 +16,8 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          persist-credentials: false
 
       - name: Check Tag
         id: check-tag
@@ -36,8 +38,8 @@ jobs:
       - name: Commit and push changes
         if: env.match == 'true'
         run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
+          git config user.name "release"
+          git config user.email "release@release.com"
           git add "${CHART_FILE}"
           git commit -m "Update version to ${RELEASE_TAG}"
 
