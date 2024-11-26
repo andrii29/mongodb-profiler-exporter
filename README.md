@@ -14,6 +14,15 @@ docker run -p 9179:9179 -it --rm --name mongodb-profiler-exporter andriik/mongod
 docker run -it --rm --net host --name mongodb-profiler-exporter andriik/mongodb-profiler-exporter // host network
 ```
 
+### Helm
+```js
+helm repo add mongodb-profiler-exporter https://andrii29.github.io/mongodb-profiler-exporter
+helm repo update
+helm search repo mongodb-profiler-exporter
+helm show values mongodb-profiler-exporter/mongodb-profiler-exporter
+helm install <release-name> -n <namespace-name> mongodb-profiler-exporter/mongodb-profiler-exporter
+```
+
 ### Usage
 ```
 usage: mongodb-profiler-exporter.py [-h] [--mongodb-uri MONGODB_URI] [--wait-interval WAIT_INTERVAL] [--max-string-size MAX_STRING_SIZE] [--listen-ip LISTEN_IP] [--listen-port LISTEN_PORT] [--verbose]

@@ -1,4 +1,4 @@
-name: Update Chart appVersion on Release
+name: Update Chart version on Release
 
 on:
   release:
@@ -19,12 +19,8 @@ jobs:
       - name: Update appVersion in Chart.yaml
         run: |
 
-          # Update the appVersion field in the Chart.yaml file
+          sed -i.bak "s/^version: .*/version: ${RELEASE_TAG}/" "$CHART_FILE"
           sed -i.bak "s/^appVersion: .*/appVersion: ${RELEASE_TAG}/" "$CHART_FILE"
-
-          # Check if the file was updated correctly
-          echo "Updated Chart.yaml content:"
-          cat "$CHART_FILE"
 
       - name: Commit and push changes
         run: |
