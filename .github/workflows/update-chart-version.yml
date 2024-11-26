@@ -26,7 +26,7 @@ jobs:
               echo "match=false" >> $GITHUB_ENV
           fi
 
-      - name: Update appVersion in Chart.yaml
+      - name: Update version in Chart.yaml
         if: env.match == 'true'
         run: |
 
@@ -39,5 +39,10 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add "${CHART_FILE}"
-          git commit -m "Update appVersion to ${RELEASE_TAG}"
-          git push origin HEAD:main
+          git commit -m "Update version to ${RELEASE_TAG}"
+
+      - name: Push changes
+        if: env.match == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
