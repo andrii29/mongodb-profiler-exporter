@@ -99,7 +99,7 @@ db.setProfilingLevel(1, { slowms: 100 })  // Enable profiling again
 
 ### Supported MongoDB versions
 ```
-4.4, 5.0, 6.0, 7.0
+4.4, 5.0, 6.0, 7.0, 8.0
 ```
 
 ### Grafana Dashboard
