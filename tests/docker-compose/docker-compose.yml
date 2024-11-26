@@ -1,0 +1,52 @@
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus:/etc/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    restart: always
+
+  grafana:
+    image: grafana/grafana:9.2.15
+    container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    ports:
+      - 3000:3000
+    volumes:
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+    restart: always
+
+  mongodb:
+    image: mongo:${MONGODB_VERSION}
+    container_name: mongodb
+    ports:
+      - 27017:27017
+    volumes:
+      - ./mongodb/scripts:/scripts
+    restart: always
+
+  mongodb-profiler-exporter:
+    image: andriik/mongodb-profiler-exporter
+    container_name: mongodb-profiler-exporter
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/
+      VERBOSE: true
+    ports:
+      - 9179:9179
+    depends_on:
+      - mongodb
+    restart: always
+
+## docker network create tests --subnet 172.14.24.0/24
+networks:
+  default:
+    external: true
+    name: tests

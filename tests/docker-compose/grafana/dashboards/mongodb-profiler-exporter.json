@@ -1,0 +1,955 @@
+{
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": {
+            "type": "grafana",
+            "uid": "-- Grafana --"
+          },
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "target": {
+            "limit": 100,
+            "matchAny": false,
+            "tags": [],
+            "type": "dashboard"
+          },
+          "type": "dashboard"
+        }
+      ]
+    },
+    "description": "Mongo DB Profiler Prometheus Exporter. Check https://github.com/andrii29/mongodb-profiler-exporter for additional info",
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "gnetId": 20387,
+    "graphTooltip": 0,
+    "id": null,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        },
+        "id": 10,
+        "panels": [],
+        "title": "Main",
+        "type": "row"
+      },
+      {
+        "datasource": {
+          "name": "Prometheus",
+          "type": "Prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "custom": {
+              "align": "auto",
+              "displayMode": "auto",
+              "inspect": false,
+              "minWidth": 50
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Query Rate"
+              },
+              "properties": [
+                {
+                  "id": "unit",
+                  "value": "short"
+                },
+                {
+                  "id": "custom.width",
+                  "value": 91
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Avg Duration"
+              },
+              "properties": [
+                {
+                  "id": "unit",
+                  "value": "ms"
+                },
+                {
+                  "id": "custom.width",
+                  "value": 97
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Plan Summary"
+              },
+              "properties": [
+                {
+                  "id": "custom.displayMode",
+                  "value": "color-background-solid"
+                },
+                {
+                  "id": "mappings",
+                  "value": [
+                    {
+                      "options": {
+                        "COLLSCAN": {
+                          "color": "red",
+                          "index": 0
+                        }
+                      },
+                      "type": "value"
+                    }
+                  ]
+                },
+                {
+                  "id": "custom.width",
+                  "value": 243
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Query Hash"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 95
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Namespace"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 138
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Query Framework"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 126
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Operation"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 86
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 13,
+          "w": 24,
+          "x": 0,
+          "y": 1
+        },
+        "id": 7,
+        "options": {
+          "footer": {
+            "enablePagination": false,
+            "fields": "",
+            "reducer": [
+              "sum"
+            ],
+            "show": false
+          },
+          "frameIndex": 5,
+          "showHeader": true,
+          "sortBy": [
+            {
+              "desc": true,
+              "displayName": "Avg Duration"
+            }
+          ]
+        },
+        "pluginVersion": "9.2.15",
+        "targets": [
+          {
+            "datasource": {
+              "name": "Prometheus",
+              "type": "Prometheus"
+            },
+            "editorMode": "code",
+            "exemplar": false,
+            "expr": "sum(rate(slow_queries_count_total{job=~\"$job\", instance=~\"$instance\", ns=~\"$ns\", query_hash=~\"$query_hash\" }[$__range])) by (query_hash, ns) * on (query_hash, ns) group_left(op, plan_summary, query_framework, query_shape) topk(1, max_over_time(slow_queries_info[$__range])) by (query_hash)",
+            "format": "table",
+            "hide": false,
+            "instant": true,
+            "legendFormat": "__auto",
+            "range": false,
+            "refId": "A"
+          },
+          {
+            "datasource": {
+              "name": "Prometheus",
+              "type": "Prometheus"
+            },
+            "editorMode": "code",
+            "exemplar": false,
+            "expr": "sum (rate(slow_queries_duration_total{job=~\"$job\", instance=~\"$instance\", ns=~\"$ns\", query_hash=~\"$query_hash\" }[$__range])/rate(slow_queries_count_total{job=~\"$job\", ns=~\"$ns\", query_hash=~\"$query_hash\" }[$__range])) by (query_hash, ns) * on (query_hash, ns) group_left(op, plan_summary, query_framework, query_shape) topk(1, max_over_time(slow_queries_info[$__range])) by (query_hash)",
+            "format": "table",
+            "hide": false,
+            "instant": true,
+            "legendFormat": "__auto",
+            "range": false,
+            "refId": "B"
+          }
+        ],
+        "title": "Slow Queries",
+        "transformations": [
+          {
+            "id": "joinByField",
+            "options": {
+              "byField": "query_hash",
+              "mode": "outer"
+            }
+          },
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "Time": true,
+                "Time 1": true,
+                "Time 2": true,
+                "db 1": true,
+                "db 2": true,
+                "instance 1": true,
+                "instance 2": true,
+                "job 1": true,
+                "job 2": true,
+                "ns 1": false,
+                "ns 2": true,
+                "op 1": false,
+                "op 2": true,
+                "plan_summary 1": false,
+                "plan_summary 2": true,
+                "query_framework 1": false,
+                "query_framework 2": true,
+                "query_shape 1": false,
+                "query_shape 2": true
+              },
+              "indexByName": {
+                "Time 1": 8,
+                "Time 2": 12,
+                "Value #A": 6,
+                "Value #B": 7,
+                "db 1": 9,
+                "db 2": 13,
+                "instance 1": 10,
+                "instance 2": 14,
+                "job 1": 11,
+                "job 2": 15,
+                "ns 1": 1,
+                "ns 2": 16,
+                "op 1": 3,
+                "op 2": 18,
+                "plan_summary 1": 4,
+                "plan_summary 2": 19,
+                "query_framework 1": 2,
+                "query_framework 2": 17,
+                "query_hash": 0,
+                "query_shape 1": 5,
+                "query_shape 2": 20
+              },
+              "renameByName": {
+                "Value": "Query Rate",
+                "Value #A": "Query Rate",
+                "Value #B": "Avg Duration",
+                "db 1": "",
+                "job 2": "",
+                "ns": "Namespace",
+                "ns 1": "Namespace",
+                "ns 2": "",
+                "op": "Operation",
+                "op 1": "Operation",
+                "op 2": "",
+                "plan_summary": "Plan Summary",
+                "plan_summary 1": "Plan Summary",
+                "plan_summary 2": "",
+                "query_framework": "Query Framework",
+                "query_framework 1": "Query Framework",
+                "query_framework 2": "",
+                "query_hash": "Query Hash",
+                "query_shape": "Query Shape",
+                "query_shape 1": "Query Shape",
+                "query_shape 2": ""
+              }
+            }
+          }
+        ],
+        "type": "table"
+      },
+      {
+        "datasource": {
+          "type": "Prometheus",
+          "name": "Prometheus"
+        },
+        "description": "",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "ms"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 0,
+          "y": 14
+        },
+        "id": 4,
+        "options": {
+          "legend": {
+            "calcs": [
+              "last",
+              "max"
+            ],
+            "displayMode": "table",
+            "placement": "right",
+            "showLegend": true,
+            "sortBy": "Last",
+            "sortDesc": true
+          },
+          "tooltip": {
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "targets": [
+          {
+            "datasource": {
+              "name": "Prometheus",
+              "type": "Prometheus"
+            },
+            "editorMode": "code",
+            "expr": "rate(slow_queries_duration_total{job=~\"$job\", instance=~\"$instance\", ns=~\"$ns\", query_hash=~\"$query_hash\" }[1m])",
+            "legendFormat": "{{ns}} - {{query_hash}}",
+            "range": true,
+            "refId": "A"
+          }
+        ],
+        "title": "Slow Queries Duration",
+        "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "Prometheus",
+          "name": "Prometheus"
+        },
+        "description": "",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "ms"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 12,
+          "y": 14
+        },
+        "id": 5,
+        "options": {
+          "legend": {
+            "calcs": [
+              "last",
+              "max"
+            ],
+            "displayMode": "table",
+            "placement": "right",
+            "showLegend": true,
+            "sortBy": "Last",
+            "sortDesc": true
+          },
+          "tooltip": {
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "targets": [
+          {
+            "datasource": {
+              "name": "Prometheus",
+              "type": "Prometheus"
+            },
+            "editorMode": "code",
+            "expr": "rate(slow_queries_duration_total{job=~\"$job\", instance=~\"$instance\", ns=~\"$ns\", query_hash=~\"$query_hash\" }[1m])/rate(slow_queries_count_total{job=~\"$job\", ns=~\"$ns\", query_hash=~\"$query_hash\" }[1m])",
+            "legendFormat": "{{ns}} - {{query_hash}}",
+            "range": true,
+            "refId": "A"
+          }
+        ],
+        "title": "Slow Queries Average Duration",
+        "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "Prometheus",
+          "name": "Prometheus"
+        },
+        "description": "More Is Better",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "axisSoftMin": 0,
+              "barAlignment": 0,
+              "drawStyle": "points",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green"
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "percentunit"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 0,
+          "y": 23
+        },
+        "id": 3,
+        "options": {
+          "legend": {
+            "calcs": [
+              "last",
+              "max"
+            ],
+            "displayMode": "table",
+            "placement": "right",
+            "showLegend": true,
+            "sortBy": "Last",
+            "sortDesc": false
+          },
+          "tooltip": {
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "targets": [
+          {
+            "datasource": {
+              "name": "Prometheus",
+              "type": "Prometheus"
+            },
+            "editorMode": "code",
+            "expr": "rate(slow_queries_nreturned_total{job=~\"$job\", instance=~\"$instance\", ns=~\"$ns\", query_hash=~\"$query_hash\" }[1m]) / rate(slow_queries_docs_examined_total{job=~\"$job\", instance=~\"$instance\", ns=~\"$ns\", query_hash=~\"$query_hash\" }[1m]) < +Inf",
+            "legendFormat": "{{ns}} - {{query_hash}}",
+            "range": true,
+            "refId": "A"
+          }
+        ],
+        "title": "Slow Queries Efficiency",
+        "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "Prometheus",
+          "name": "Prometheus"
+        },
+        "description": "More Is Better",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "axisSoftMin": 1,
+              "barAlignment": 0,
+              "drawStyle": "points",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green"
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "short"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 12,
+          "y": 23
+        },
+        "id": 11,
+        "options": {
+          "legend": {
+            "calcs": [
+              "last",
+              "max"
+            ],
+            "displayMode": "table",
+            "placement": "right",
+            "showLegend": true,
+            "sortBy": "Last",
+            "sortDesc": true
+          },
+          "tooltip": {
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "targets": [
+          {
+            "datasource": {
+              "name": "Prometheus",
+              "type": "Prometheus"
+            },
+            "editorMode": "code",
+            "expr": "rate(slow_queries_keys_examined_total{job=~\"$job\", instance=~\"$instance\", ns=~\"$ns\", query_hash=~\"$query_hash\" }[1m]) / rate(slow_queries_docs_examined_total{job=~\"$job\", instance=~\"$instance\", ns=~\"$ns\", query_hash=~\"$query_hash\" }[1m]) < +Inf",
+            "legendFormat": "{{ns}} - {{query_hash}}",
+            "range": true,
+            "refId": "A"
+          }
+        ],
+        "title": "Slow Queries Index Efficiency",
+        "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "Prometheus",
+          "name": "Prometheus"
+        },
+        "description": "",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green"
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "short"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 12,
+          "y": 32
+        },
+        "id": 2,
+        "options": {
+          "legend": {
+            "calcs": [
+              "last",
+              "max"
+            ],
+            "displayMode": "table",
+            "placement": "right",
+            "showLegend": true,
+            "sortBy": "Last",
+            "sortDesc": true
+          },
+          "tooltip": {
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "targets": [
+          {
+            "datasource": {
+              "name": "Prometheus",
+              "type": "Prometheus"
+            },
+            "editorMode": "code",
+            "expr": "rate(slow_queries_count_total{job=~\"$job\", instance=~\"$instance\", ns=~\"$ns\", query_hash=~\"$query_hash\" }[1m])",
+            "legendFormat": "{{ns}} - {{query_hash}}",
+            "range": true,
+            "refId": "A"
+          }
+        ],
+        "title": "Slow Queries Rate",
+        "type": "timeseries"
+      }
+    ],
+    "refresh": "10s",
+    "schemaVersion": 37,
+    "style": "dark",
+    "tags": [],
+    "templating": {
+      "list": [
+        {
+          "current": {},
+          "datasource": {
+            "name": "Prometheus",
+            "type": "Prometheus"
+          },
+          "definition": "label_values(slow_queries_info, job)",
+          "hide": 0,
+          "includeAll": false,
+          "multi": false,
+          "name": "job",
+          "options": [],
+          "query": {
+            "query": "label_values(slow_queries_info, job)",
+            "refId": "StandardVariableQuery"
+          },
+          "refresh": 2,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 1,
+          "type": "query"
+        },
+        {
+          "current": {},
+          "datasource": {
+            "name": "Prometheus",
+            "type": "Prometheus"
+          },
+          "definition": "label_values(slow_queries_count_total, instance)",
+          "hide": 0,
+          "includeAll": false,
+          "multi": false,
+          "name": "instance",
+          "options": [],
+          "query": {
+            "query": "label_values(slow_queries_count_total, instance)",
+            "refId": "StandardVariableQuery"
+          },
+          "refresh": 2,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 1,
+          "type": "query"
+        },
+        {
+          "current": {},
+          "datasource": {
+            "name": "Prometheus",
+            "type": "Prometheus"
+          },
+          "definition": "label_values(slow_queries_count_total{job=~\"$job\", instance=~\"$instance\"}, db)",
+          "hide": 0,
+          "includeAll": false,
+          "multi": false,
+          "name": "db",
+          "options": [],
+          "query": {
+            "query": "label_values(slow_queries_count_total{job=~\"$job\", instance=~\"$instance\"}, db)",
+            "refId": "StandardVariableQuery"
+          },
+          "refresh": 2,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 1,
+          "type": "query"
+        },
+        {
+          "current": {},
+          "datasource": {
+            "name": "Prometheus",
+            "type": "Prometheus"
+          },
+          "definition": "label_values(slow_queries_count_total{job=~\"$job\",  instance=~\"$instance\", db=~\"$db\"}, ns)",
+          "hide": 0,
+          "includeAll": true,
+          "multi": true,
+          "name": "ns",
+          "options": [],
+          "query": {
+            "query": "label_values(slow_queries_count_total{job=~\"$job\",  instance=~\"$instance\", db=~\"$db\"}, ns)",
+            "refId": "StandardVariableQuery"
+          },
+          "refresh": 2,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "type": "query"
+        },
+        {
+          "current": {},
+          "datasource": {
+            "name": "Prometheus",
+            "type": "Prometheus"
+          },
+          "definition": "label_values(slow_queries_count_total{job=~\"$job\",  instance=~\"$instance\", db=~\"$db\", ns=~\"$ns\"}, query_hash)",
+          "hide": 0,
+          "includeAll": true,
+          "multi": true,
+          "name": "query_hash",
+          "options": [],
+          "query": {
+            "query": "label_values(slow_queries_count_total{job=~\"$job\",  instance=~\"$instance\", db=~\"$db\", ns=~\"$ns\"}, query_hash)",
+            "refId": "StandardVariableQuery"
+          },
+          "refresh": 2,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "type": "query"
+        }
+      ]
+    },
+    "time": {
+      "from": "now-5m",
+      "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "MongoDB Profiler Exporter",
+    "uid": "r5qsdbpSk",
+    "version": 2,
+    "weekStart": ""
+  }
