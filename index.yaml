@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   mongodb-profiler-exporter:
   - apiVersion: v2
+    appVersion: 1.14.5
+    created: "2024-11-26T01:29:14.145850145Z"
+    description: A Helm chart for Kubernetes
+    digest: 3656a6a890215e6a1174d281ec1abd6d5820d03c2f84bb4b437ddf649049420d
+    name: mongodb-profiler-exporter
+    type: application
+    urls:
+    - https://github.com/andrii29/mongodb-profiler-exporter/releases/download/mongodb-profiler-exporter-1.14.5/mongodb-profiler-exporter-1.14.5.tgz
+    version: 1.14.5
+  - apiVersion: v2
     appVersion: latest
     created: "2024-11-26T00:08:14.260445987Z"
     description: A Helm chart for Kubernetes
@@ -11,4 +21,4 @@ entries:
     urls:
     - https://github.com/andrii29/mongodb-profiler-exporter/releases/download/mongodb-profiler-exporter-0.1.0/mongodb-profiler-exporter-0.1.0.tgz
     version: 0.1.0
-generated: "2024-11-26T00:08:14.260454232Z"
+generated: "2024-11-26T01:29:14.14586343Z"
