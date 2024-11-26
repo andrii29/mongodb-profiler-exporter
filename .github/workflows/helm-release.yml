@@ -1,11 +1,12 @@
 name: Release Charts
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - charts/mongodb-profiler-exporter/Chart.yaml
+  release:
+    types: [published]
+
+env:
+  CHART_FILE: "charts/mongodb-profiler-exporter/Chart.yaml"
+  RELEASE_TAG: "${{ github.event.release.tag_name }}"
 
 jobs:
   release:
@@ -19,17 +20,36 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Check Tag
+        id: check-tag
+        run: |
+          if [[ "${{ github.event.release.tag_name }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "match=true" >> $GITHUB_ENV
+          else
+              echo "match=false" >> $GITHUB_ENV
+          fi
+
+      - name: Update version in Chart.yaml
+        if: env.match == 'true'
+        run: |
+
+          sed -i.bak "s/^version: .*/version: ${RELEASE_TAG}/" "$CHART_FILE"
+          sed -i.bak "s/^appVersion: .*/appVersion: ${RELEASE_TAG}/" "$CHART_FILE"
+
       - name: Configure Git
+        if: env.match == 'true'
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: Install Helm
         uses: azure/setup-helm@v4
+        if: env.match == 'true'
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.6.0
+        if: env.match == 'true'
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
