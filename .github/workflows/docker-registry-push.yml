@@ -11,7 +11,6 @@ jobs:
   push_to_registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
-    if: github.event.release.tag_name =~ '^[0-9]+\\.[0-9]+\\.[0-9]+$'
 
     steps:
 
