@@ -1,0 +1,35 @@
+name: Update Chart appVersion on Release
+
+on:
+  release:
+    types: [published]
+
+env:
+  CHART_FILE: "charts/mongodb-profiler-exporter/Chart.yaml"
+  RELEASE_TAG: "${{ github.event.release.tag_name }}"
+
+jobs:
+  update-chart-appversion:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Update appVersion in Chart.yaml
+        run: |
+
+          # Update the appVersion field in the Chart.yaml file
+          sed -i.bak "s/^appVersion: .*/appVersion: ${RELEASE_TAG}/" "$CHART_FILE"
+
+          # Check if the file was updated correctly
+          echo "Updated Chart.yaml content:"
+          cat "$CHART_FILE"
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add "${CHART_FILE}"
+          git commit -m "Update appVersion to ${RELEASE_TAG}"
+          git push origin HEAD:main
