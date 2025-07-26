@@ -1,5 +1,17 @@
 #!/bin/sh
 
+# Determine which MongoDB client to use
+if command -v mongosh >/dev/null 2>&1; then
+    MONGO_CMD="mongosh"
+elif command -v mongo >/dev/null 2>&1; then
+    MONGO_CMD="mongo"
+else
+    echo "Error: Neither mongosh nor mongo command found"
+    exit 1
+fi
+
+echo "Using MongoDB client: $MONGO_CMD"
+
 while true; do
     # Generate a random number between 1 and 10 for selecting a query
     random_query=$((RANDOM % 10 + 1))
@@ -41,7 +53,7 @@ while true; do
             ;;
     esac
 
-    mongosh "mongodb://127.0.0.1:27017/rto" --eval "$query"
+    $MONGO_CMD "mongodb://127.0.0.1:27017/rto" --eval "$query"
 
     sleep 0.1
 done

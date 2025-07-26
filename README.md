@@ -41,7 +41,7 @@ options:
                         IP address to listen on (default: 0.0.0.0)
   --listen-port LISTEN_PORT
                         Port to listen (default: 9179)
-  --verbose             Enable Verbose Mode (default: False)
+  --verbose VERBOSE     Enable Verbose Mode (default: False)
 
 ```
 
@@ -54,6 +54,7 @@ You can use environment variables to configure the exporter. If an environment v
 - `MAX_STRING_SIZE`: Maximum string size for Prometheus labels (default: `1000`)
 - `LISTEN_IP`: IP address to listen on (default: `0.0.0.0`)
 - `LISTEN_PORT`: Port to listen (default: `9179`)
+- `VERBOSE`: Enable verbose mode (default: `False`)
 
 ### Authentication
 To set up authentication, follow these steps:
@@ -97,9 +98,54 @@ db.createCollection( "system.profile", { capped: true, size: 1024 * 1024 * 50 } 
 db.setProfilingLevel(1, { slowms: 100 })  // Enable profiling again
 ```
 
+### Replication and Sharding
+Every MongoDB node has a separate `system.profile` collection, which does not replicate. Because of this, the MongoDB profiler exporter needs to be set up for every replica in every shard to get data from all instances, and the connection string should point to the local node, not the cluster.
+
 ### Supported MongoDB versions
 ```
 4.4, 5.0, 6.0, 7.0, 8.0
+```
+
+### Exported Metrics
+
+The exporter provides the following Prometheus metrics from MongoDB's `system.profile` collection:
+
+#### Counter Metrics
+| Metric Name | Type | Description |
+|-------------|------|-------------|
+| `slow_queries_count_total` | Counter | Total number of slow queries |
+| `slow_queries_duration_total` | Counter | Total execution time of slow queries in milliseconds |
+| `slow_queries_keys_examined_total` | Counter | Total number of examined keys |
+| `slow_queries_docs_examined_total` | Counter | Total number of examined documents |
+| `slow_queries_nreturned_total` | Counter | Total number of returned documents |
+
+#### Gauge Metrics
+| Metric Name | Type | Description |
+|-------------|------|-------------|
+| `slow_queries_info` | Gauge | Information about slow query (always set to 1) |
+
+#### Labels Description
+- **`db`**: Database name
+- **`ns`**: Namespace (database.collection)
+- **`query_hash`**: MongoDB's query hash identifier
+- **`query_shape`**: Normalized query shape with sensitive data removed
+- **`query_framework`**: Query framework used (e.g., "classic", "sbe")
+- **`op`**: Operation type (e.g., "query", "update", "insert", "delete")
+- **`plan_summary`**: Query execution plan summary
+
+#### Example Metrics Output
+```
+# HELP slow_queries_count_total Total number of slow queries
+# TYPE slow_queries_count_total counter
+slow_queries_count_total{db="myapp",ns="myapp.users",query_hash="12345678"} 15
+
+# HELP slow_queries_duration_total Total execution time of slow queries in milliseconds
+# TYPE slow_queries_duration_total counter
+slow_queries_duration_total{db="myapp",ns="myapp.users",query_hash="12345678"} 2500
+
+# HELP slow_queries_info Information about slow query
+# TYPE slow_queries_info gauge
+slow_queries_info{db="myapp",ns="myapp.users",query_hash="12345678",query_shape="{find: ?, filter: {status: ?}}",query_framework="classic",op="query",plan_summary="IXSCAN { status: 1 }"} 1
 ```
 
 ### Grafana Dashboard

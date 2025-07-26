@@ -1,6 +1,6 @@
 services:
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.5.0
     container_name: prometheus
     ports:
       - 9090:9090
@@ -11,10 +11,12 @@ services:
     restart: always
 
   grafana:
-    image: grafana/grafana:9.2.15
+    image: grafana/grafana:12.1.0
     container_name: grafana
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
     ports:
       - 3000:3000
     volumes:
@@ -34,7 +36,8 @@ services:
     restart: always
 
   mongodb-profiler-exporter:
-    image: andriik/mongodb-profiler-exporter
+    build:
+      context: ../../
     container_name: mongodb-profiler-exporter
     environment:
       MONGODB_URI: mongodb://mongodb:27017/
@@ -44,9 +47,3 @@ services:
     depends_on:
       - mongodb
     restart: always
-
-## docker network create tests --subnet 172.14.24.0/24
-networks:
-  default:
-    external: true
-    name: tests
