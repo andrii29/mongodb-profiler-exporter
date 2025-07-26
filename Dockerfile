@@ -1,4 +1,4 @@
-ARG TAG=3.12-alpine3.20
+ARG TAG=3.13-alpine3.22
 FROM python:${TAG}
 
 ARG USER=app

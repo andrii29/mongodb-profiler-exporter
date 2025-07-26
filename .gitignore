@@ -162,3 +162,5 @@ cython_debug/
 .json
 .sql
 .history
+
+mongodb-profiler-dashboard.json
