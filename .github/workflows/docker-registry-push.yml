@@ -22,7 +22,7 @@ jobs:
       - name: Check Tag
         id: check-tag
         run: |
-          if [[ "${{ github.event.release.tag_name }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          if [[ "${{ github.event.release.tag_name }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
               echo "match=true" >> $GITHUB_ENV
           else
               echo "match=false" >> $GITHUB_ENV
