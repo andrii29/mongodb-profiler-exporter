@@ -8,6 +8,8 @@ import time
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 import argparse
+import signal
+import sys
 
 # Configure logging
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -28,6 +30,16 @@ fields_to_metrics_map = {
     "docsExamined": slow_queries_docs_examined_total,
     "nreturned": slow_queries_nreturned_total
 }
+
+shutdown = False
+
+def handle_shutdown(signum, frame):
+    global shutdown
+    logging.info(f"Received signal {signum}, shutting down gracefully...")
+    shutdown = True
+
+signal.signal(signal.SIGTERM, handle_shutdown)
+signal.signal(signal.SIGINT, handle_shutdown)
 
 def connect_to_mongo(uri):
     client = pymongo.MongoClient(uri)
@@ -130,7 +142,7 @@ def main():
     slow_queries_info_last_cleared = datetime.now(ZoneInfo("UTC"))
     slow_queries_info_last_clear_interval=300 # seconds
 
-    while True:
+    while not shutdown:
         loop_start = time.time()
         try:
             # Connect to MongoDB
@@ -198,6 +210,8 @@ def main():
         elapsed = time.time() - loop_start
         if verbose: print(f'Elapsed loop execution time: {elapsed:.2f} seconds\n')
         time.sleep(max(0, args.wait_interval - elapsed - 0.0005)) # try to keep loop at interval by extracting actual execution time
+
+    sys.exit(0)
 
 if __name__ == '__main__':
     main()
