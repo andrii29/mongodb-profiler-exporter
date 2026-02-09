@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   mongodb-profiler-exporter:
   - apiVersion: v2
+    appVersion: v2.1.0
+    created: "2026-02-09T17:37:42.160041757Z"
+    description: Mongodb Profiler Exporter
+    digest: 17429d4ba81a5deab934bb1663271ee3ca2cab96afb24d1d94e42a9a40072d3d
+    name: mongodb-profiler-exporter
+    type: application
+    urls:
+    - https://github.com/andrii29/mongodb-profiler-exporter/releases/download/mongodb-profiler-exporter-v2.1.0/mongodb-profiler-exporter-v2.1.0.tgz
+    version: v2.1.0
+  - apiVersion: v2
     appVersion: v2.0.0
     created: "2025-11-15T10:30:36.189065008Z"
     description: Mongodb Profiler Exporter
@@ -71,4 +81,4 @@ entries:
     urls:
     - https://github.com/andrii29/mongodb-profiler-exporter/releases/download/mongodb-profiler-exporter-0.1.0/mongodb-profiler-exporter-0.1.0.tgz
     version: 0.1.0
-generated: "2025-11-15T10:30:36.189097299Z"
+generated: "2026-02-09T17:37:42.16007542Z"
