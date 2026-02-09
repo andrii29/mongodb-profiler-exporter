@@ -103,7 +103,7 @@ Every MongoDB node has a separate `system.profile` collection, which does not re
 
 ### Supported MongoDB versions
 ```
-4.4, 5.0, 6.0, 7.0, 8.0
+4.4, 5.0, 6.0, 7.0, 8.0, 8.2
 ```
 
 ### Exported Metrics

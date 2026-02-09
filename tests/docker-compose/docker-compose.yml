@@ -1,6 +1,6 @@
 services:
   prometheus:
-    image: prom/prometheus:v3.5.0
+    image: prom/prometheus:v3.9.1
     container_name: prometheus
     ports:
       - 9090:9090
@@ -11,7 +11,7 @@ services:
     restart: always
 
   grafana:
-    image: grafana/grafana:12.1.0
+    image: grafana/grafana:12.3
     container_name: grafana
     environment:
       - GF_AUTH_ANONYMOUS_ENABLED=true
